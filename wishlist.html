@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wish List Creator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button.delete-btn {
+      background-color: #dc3545;
+    }
+    button.reserve-btn {
+      background-color: #007bff;
+    }
+    .reserved {
+      background-color: #6c757d;
+      color: #fff;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Create Your Wish List</h1>
+
+<div>
+  <label for="show-reserver">Show who reserved gifts?</label>
+  <input type="checkbox" id="show-reserver" onchange="toggleReserverVisibility(this)">
+</div>
+
+<table id="wishListTable">
+  <thead>
+  <tr>
+    <th>Gift Name</th>
+    <th>Link to Gift</th>
+    <th>Approximate Price</th>
+    <th>Reserved By</th>
+    <th>Action</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td><input type="text" placeholder="Enter gift name"></td>
+    <td><input type="text" placeholder="Enter gift link"></td>
+    <td><input type="text" placeholder="Enter price"></td>
+    <td><span class="reserve-info">Not reserved</span></td>
+    <td>
+      <button class="delete-btn hidden" onclick="deleteRow(this)">Delete</button>
+      <button class="reserve-btn hidden" onclick="reserveGift(this)">Reserve</button>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+<button onclick="addRow()">Add Row</button>
+<button onclick="shareWishlist()">Share My Wishlist</button>
+
+<script>
+  let isCreator = true; // змінюється на false для гостей
+  let showReserver = true; // для керування видимістю резервувачів
+
+  function addRow() {
+    let table = document.getElementById('wishListTable').getElementsByTagName('tbody')[0];
+    let newRow = table.insertRow();
+
+    let giftNameCell = newRow.insertCell(0);
+    let giftLinkCell = newRow.insertCell(1);
+    let priceCell = newRow.insertCell(2);
+    let reserveInfoCell = newRow.insertCell(3);
+    let actionCell = newRow.insertCell(4);
+
+    giftNameCell.innerHTML = '<input type="text" placeholder="Enter gift name">';
+    giftLinkCell.innerHTML = '<input type="text" placeholder="Enter gift link">';
+    priceCell.innerHTML = '<input type="text" placeholder="Enter price">';
+    reserveInfoCell.innerHTML = '<span class="reserve-info">Not reserved</span>';
+
+    // Показуємо або приховуємо кнопки в залежності від ролі
+    if (isCreator) {
+      actionCell.innerHTML = `
+                    <button class="delete-btn" onclick="deleteRow(this)">Delete</button>
+                    <button class="reserve-btn hidden" onclick="reserveGift(this)">Reserve</button>`;
+    } else {
+      actionCell.innerHTML = `
+                    <button class="delete-btn hidden" onclick="deleteRow(this)">Delete</button>
+                    <button class="reserve-btn" onclick="reserveGift(this)">Reserve</button>`;
+    }
+  }
+
+  function deleteRow(button) {
+    let row = button.parentNode.parentNode;
+    row.parentNode.removeChild(row);
+  }
+
+  function reserveGift(button) {
+    let row = button.parentNode.parentNode;
+    let reserveInfo = row.querySelector('.reserve-info');
+
+    if (reserveInfo.textContent !== "Not reserved") {
+      alert("This gift has already been reserved!");
+      return;
+    }
+
+    let name = prompt("Please enter your name to reserve this gift:");
+    if (name) {
+      reserveInfo.textContent = `Reserved by ${name}`;
+      if (!showReserver) {
+        reserveInfo.style.display = 'none';
+      }
+      button.classList.add('reserved');
+      button.disabled = true;
+    }
+  }
+
+  function shareWishlist() {
+    let url = "https://example.com/share-wishlist";
+    alert(`Your wishlist has been shared! You can share this link: ${url}`);
+  }
+
+  function toggleReserverVisibility(checkbox) {
+    showReserver = checkbox.checked;
+    let reserveInfoCells = document.querySelectorAll('.reserve-info');
+    reserveInfoCells.forEach(function(cell) {
+      if (showReserver) {
+        cell.style.display = '';
+      } else {
+        if (cell.textContent.startsWith('Reserved by')) {
+          cell.style.display = 'none';
+        }
+      }
+    });
+  }
+
+  // Симуляція завантаження сторінки
+  window.onload = function() {
+    let deleteButtons = document.querySelectorAll('.delete-btn');
+    let reserveButtons = document.querySelectorAll('.reserve-btn');
+
+    // Показати або приховати кнопки залежно від ролі користувача
+    if (isCreator) {
+      deleteButtons.forEach(function(button) {
+        button.classList.remove('hidden');
+      });
+    } else {
+      reserveButtons.forEach(function(button) {
+        button.classList.remove('hidden');
+      });
+    }
+  };
+</script>
+
+</body>
+</html>
